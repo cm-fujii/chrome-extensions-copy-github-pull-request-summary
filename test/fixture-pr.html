@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  GitHub の PR ページ（Conversation タブ）を模したフィクスチャ。
+  実際の github.com が返す HTML から、content.js が依存する構造だけを抜き出している。
+-->
+<html lang="en">
+  <head><title>fixture</title></head>
+  <body>
+    <react-app app-name="pull-requests" initial-path="/microsoft/vscode/pull/200000">
+      <script type="application/json" data-target="react-app.embeddedData">
+        {
+          "payload": {
+            "pullRequestsLayoutRoute": {
+              "pullRequest": {
+                "number": 200000,
+                "title": "Apply `font-variation-settings` to the suggestion widget",
+                "baseBranch": "main",
+                "headBranch": "fix/font-variation-settings",
+                "headRepositoryOwnerLogin": "chengluyu"
+              },
+              "repository": { "ownerLogin": "microsoft", "name": "vscode" }
+            }
+          }
+        }
+      </script>
+    </react-app>
+
+    <div class="TimelineItem TimelineItem--condensed js-comment-container js-command-palette-pull-body">
+      <task-lists disabled sortable>
+        <div class="comment-body markdown-body js-comment-body soft-wrap user-select-contain d-block">
+          <h2 dir="auto">背景</h2>
+          <p dir="auto">詳細は <a href="https://example.com/rfc">RFC</a> を参照。<code class="notranslate">SIGTERM</code> の扱いを変更する。</p>
+          <ul class="contains-task-list">
+            <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="" checked=""> Google プロバイダ対応</li>
+            <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled=""> GitHub プロバイダ
+              <ul><li>スコープ設定は<strong>後続PR</strong></li></ul>
+            </li>
+          </ul>
+          <h3 dir="auto">設定例</h3>
+          <div class="highlight highlight-source-ts notranslate position-relative overflow-auto" dir="auto" data-snippet-clipboard-copy-content="const token = await refresh({&#10;  retry: 3,&#10;})"><pre class="notranslate"><span class="pl-k">const</span> <span class="pl-s1">token</span> = <span class="pl-k">await</span> <span class="pl-en">refresh</span>({
+  <span class="pl-c1">retry</span>: <span class="pl-c1">3</span>,
+})</pre></div>
+          <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="None"><pre lang="release-note" class="notranslate"><code class="notranslate">None
+</code></pre></div>
+          <markdown-accessiblity-table>
+            <table><thead><tr><th>環境</th><th>値</th></tr></thead>
+            <tbody><tr><td>dev</td><td><code class="notranslate">false</code></td></tr><tr><td>prod</td><td><code class="notranslate">true</code></td></tr></tbody></table>
+          </markdown-accessiblity-table>
+          <blockquote><p dir="auto">注意: 移行後は旧 API を削除する。</p></blockquote>
+          <ol start="2" dir="auto"><li>二番目</li><li>三番目</li></ol>
+          <hr>
+          <details><summary>詳細な手順</summary><p dir="auto">折りたたみの中身。</p></details>
+          <p dir="auto"><a class="issue-link js-issue-link" href="/microsoft/vscode/issues/199954">#199954</a> と <a href="https://example.com/a_(b)">括弧つき URL</a>、<del>削除済み</del>。</p>
+        </div>
+      </task-lists>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!doctype html>
+<!--
+  同一リポジトリ（fork ではない）PR のフィクスチャ。
+  fixture-pr.html では通らない以下の経路を検証する。
+    - ブランチ名に owner: を付けない（headRepositoryOwnerLogin === ownerLogin）
+    - <svg> のようなインラインのカスタム要素で段落が分断されない
+    - 画像（alt あり / なし・相対 src の絶対 URL 化）
+    - テーブルのセル内 <br> で表が壊れない
+    - コードブロックの中身がコードフェンスを含んでも途中で閉じない
+-->
+<html lang="en">
+  <head><title>fixture</title></head>
+  <body>
+    <react-app app-name="pull-requests" initial-path="/microsoft/vscode/pull/200001">
+      <script type="application/json" data-target="react-app.embeddedData">
+        {
+          "payload": {
+            "pullRequestsLayoutRoute": {
+              "pullRequest": {
+                "number": 200001,
+                "title": "Fix flaky test in scheduler",
+                "baseBranch": "main",
+                "headBranch": "fix/flaky-test",
+                "headRepositoryOwnerLogin": "microsoft"
+              },
+              "repository": { "ownerLogin": "microsoft", "name": "vscode" }
+            }
+          }
+        }
+      </script>
+    </react-app>
+
+    <div class="TimelineItem js-comment-container js-command-palette-pull-body">
+      <task-lists disabled sortable>
+        <div class="comment-body markdown-body js-comment-body soft-wrap user-select-contain d-block">
+          <ul dir="auto"><li>ステータス<svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" class="octicon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Z"></path></svg>は正常です。</li></ul>
+          <p dir="auto"><img src="https://example.com/shot.png" alt="スクショ"></p>
+          <p dir="auto"><img src="/user-images/diff.png"></p>
+          <markdown-accessiblity-table>
+            <table><thead><tr><th>環境</th><th>備考</th></tr></thead>
+            <tbody><tr><td>dev</td><td>一行目<br>二行目</td></tr></tbody></table>
+          </markdown-accessiblity-table>
+          <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="```js&#10;alert(1)&#10;```"><pre lang="markdown" class="notranslate"><code class="notranslate">```js
+alert(1)
+```
+</code></pre></div>
+        </div>
+      </task-lists>
+    </div>
+  </body>
+</html>

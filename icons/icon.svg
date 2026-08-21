@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="26" fill="#1f2328"/>
+  <!-- クリップボード（塗りのみで構成し、どのレンダラでも同じ形になるようにする） -->
+  <path d="M28 34a12 12 0 0 1 12-12h48a12 12 0 0 1 12 12v66a12 12 0 0 1-12 12H40a12 12 0 0 1-12-12z" fill="#ffffff"/>
+  <path d="M50 12h28a8 8 0 0 1 8 8v10a4 4 0 0 1-4 4H46a4 4 0 0 1-4-4V20a8 8 0 0 1 8-8z" fill="#ffffff"/>
+  <path d="M50 12h28a8 8 0 0 1 8 8v6H42v-6a8 8 0 0 1 8-8z" fill="#1f2328" opacity="0"/>
+  <!-- Pull Request のブランチ記号 -->
+  <circle cx="48" cy="58" r="9" fill="#1f2328"/>
+  <circle cx="48" cy="96" r="9" fill="#1f2328"/>
+  <circle cx="82" cy="58" r="9" fill="#1f2328"/>
+  <rect x="43" y="58" width="10" height="38" fill="#1f2328"/>
+  <path d="M77 58h10v16a12 12 0 0 1-12 12H60v-10h15a2 2 0 0 0 2-2z" fill="#1f2328"/>
+</svg>

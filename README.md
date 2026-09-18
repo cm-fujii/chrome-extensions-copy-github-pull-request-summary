@@ -41,6 +41,16 @@ const token = await refresh()
 GitHub の Pull Request のページ（Conversation / Commits / Files changed / Checks のどのタブでも可）で
 右クリックし、「Pull Request概要コピー」を選びます。コピーの成否は画面右下にトーストで表示されます。
 
+## オプション
+
+`chrome://extensions` の拡張機能の詳細から「拡張機能のオプション」を開くと、次の設定を切り替えられます。
+
+| 設定 | 既定 | 内容 |
+| --- | --- | --- |
+| Description 内の画像 URL を削除する | オフ | 画像を `（画像: alt）`（alt がなければ `（画像）`）に置き換えます。GitHub は画像を同じ URL へのリンクで包むため、画像だけを包むリンクも URL ごと外します（バッジのようにリンク先が画像と異なる場合も同様です） |
+
+コピー先の相手が画像 URL にアクセスできない場合や、画像を読み込む必要がない場合に使います。
+
 ## 仕組み
 
 - 右クリック時にのみ `content.js` を注入する構成で、常駐する content script はありません
@@ -49,6 +59,7 @@ GitHub の Pull Request のページ（Conversation / Commits / Files changed / 
   （`script[data-target="react-app.embeddedData"]` のうち `pullRequestsLayoutRoute` を持つもの）から取得します。
   CSS クラス名や `react-app` の `app-name`（`pull-requests` → `repo` へ変更された実績あり）に依存しないため、
   GitHub の画面変更に比較的強い経路です
+- オプションは `chrome.storage.sync` に保存し、`content.js` がコピーのたびに読み取ります
 - Description はレンダリング済み HTML を Markdown に変換します
   （生の Markdown は編集権限がある場合しか DOM に出ないため）。
   こちらは `.js-command-palette-pull-body .comment-body.markdown-body` という
@@ -62,6 +73,7 @@ GitHub の Pull Request のページ（Conversation / Commits / Files changed / 
 | `contextMenus` | 右クリックメニューの追加 |
 | `scripting` | メニュー選択時の `content.js` 注入 |
 | `clipboardWrite` | クリップボードへの書き込み |
+| `storage` | オプションの保存 |
 | `https://github.com/*` | PR ページの取得 |
 
 ## テスト
@@ -77,6 +89,7 @@ CHROME=/path/to/chrome python3 test/e2e.py
 
 `test/fixture-*.html` が GitHub の PR ページ、`test/expected-*.md` が期待するコピー結果です。
 検証している内容は各フィクスチャの先頭コメントに記載しています。
+オプションは `chrome.storage` の代わりにハーネスがクエリ文字列から与え、`test/e2e.py` の `CASES` でケースごとに指定します。
 
 ## 制限事項
 

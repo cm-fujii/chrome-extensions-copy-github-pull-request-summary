@@ -7,6 +7,8 @@
   const TOAST_DURATION_MS = 3000
   const PR_PATH = /^\/([^/]+)\/([^/]+)\/pull\/(\d+)(?:[/?#]|$)/
   const DOM_CHANGED = 'PR 情報を読み取れませんでした（GitHub の画面構成が変わった可能性があります）'
+  // 既定値は options.js の DEFAULT_SETTINGS と揃える
+  const DEFAULT_SETTINGS = { removeImages: false }
 
   // これ以外の要素はブロックとして扱う。GitHub は <task-lists> のような
   // カスタム要素でブロックを包むため、既知のインラインを列挙する方が安全。
@@ -225,6 +227,20 @@
 
   // ------------------------------------------------------------------ 組み立て
 
+  /** 画像をプレースホルダのテキストに置き換え、画像だけを包むリンクは URL ごと外す */
+  function replaceImages(root) {
+    // GitHub はアップロードした画像を同じ URL へのリンクで包むため、
+    // 画像を消しただけでは [](URL) の形で URL が残ってしまう。
+    // バッジのようにリンク先が画像と異なる場合も、URL を残さない方を優先して外す
+    for (const link of root.querySelectorAll('a')) {
+      if (link.querySelector('img') && !link.textContent.trim()) link.replaceWith(...link.childNodes)
+    }
+    for (const img of root.querySelectorAll('img')) {
+      const alt = (img.getAttribute('alt') || '').trim()
+      img.replaceWith(alt ? `（画像: ${alt}）` : '（画像）')
+    }
+  }
+
   function readPullRequest(doc) {
     // react-app の app-name は "pull-requests" から "repo" へ変わった実績があるため、
     // 属性で絞らず、埋め込み JSON の中身で PR のものを見分ける
@@ -245,7 +261,7 @@
     return { pullRequest, baseOwner: route.repository?.ownerLogin }
   }
 
-  function buildSummary(doc, url) {
+  function buildSummary(doc, url, settings) {
     const { pullRequest, baseOwner } = readPullRequest(doc)
 
     const headOwner = pullRequest.headRepositoryOwnerLogin
@@ -259,6 +275,7 @@
     // Description として黙ってコピーしてしまう。
     const body = doc.querySelector('.js-command-palette-pull-body .comment-body.markdown-body')
     if (!body) throw new Error(DOM_CHANGED)
+    if (settings.removeImages) replaceImages(body)
 
     return [
       `# ${pullRequest.title}`,
@@ -346,7 +363,8 @@
       throw new Error(`Pull Request の取得に失敗しました (HTTP ${response.status})`)
     }
     const doc = new DOMParser().parseFromString(await response.text(), 'text/html')
-    await copyText(buildSummary(doc, url))
+    const settings = await chrome.storage.sync.get(DEFAULT_SETTINGS)
+    await copyText(buildSummary(doc, url, settings))
     toast('Pull Request概要をコピーしました')
   } catch (error) {
     console.error('[Copy PR Summary]', error)

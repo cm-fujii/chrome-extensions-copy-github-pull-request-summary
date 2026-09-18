@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPO = "/microsoft/vscode"
@@ -27,22 +28,29 @@ CHROME = os.environ.get(
     "CHROME", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 )
 
-# (PR 番号, PR ページのフィクスチャ, 期待するコピー結果)
+# (PR 番号, PR ページのフィクスチャ, 期待するコピー結果, 拡張機能の設定)
 CASES = [
-    ("200000", "fixture-pr.html", "expected-pr.md"),
-    ("200001", "fixture-same-repo.html", "expected-same-repo.md"),
+    ("200000", "fixture-pr.html", "expected-pr.md", {}),
+    ("200001", "fixture-same-repo.html", "expected-same-repo.md", {}),
+    ("200001", "fixture-same-repo.html", "expected-same-repo-no-images.md",
+     {"removeImages": True}),
 ]
-FIXTURES = {f"{REPO}/pull/{number}": name for number, name, _ in CASES}
+FIXTURES = {f"{REPO}/pull/{number}": name for number, name, _, _ in CASES}
 
 results = queue.Queue()
 
-# content.js は Files changed タブ相当のパスから実行され、Conversation ページを fetch する
+# content.js は Files changed タブ相当のパスから実行され、Conversation ページを fetch する。
+# 拡張機能の設定はクエリ文字列 settings（JSON）で受け取り、chrome.storage の代わりに返す
 HARNESS = """<!doctype html>
 <html><body><script>
 let copied = null
 Object.defineProperty(navigator, 'clipboard', {
   value: { writeText: (text) => { copied = text; return Promise.resolve() } },
 })
+const settings = JSON.parse(new URLSearchParams(location.search).get('settings'))
+window.chrome = {
+  storage: { sync: { get: (defaults) => Promise.resolve({ ...defaults, ...settings }) } },
+}
 
 const report = (toast) => navigator.sendBeacon('/result', JSON.stringify({ copied, toast }))
 
@@ -63,7 +71,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/content.js":
             self._send((ROOT / "content.js").read_bytes(), "text/javascript")
-        elif self.path.endswith("/files"):
+        elif self.path.split("?")[0].endswith("/files"):
             self._send(HARNESS.encode(), "text/html")
         elif self.path in FIXTURES:
             self._send((ROOT / "test" / FIXTURES[self.path]).read_bytes(), "text/html")
@@ -103,20 +111,22 @@ def run_case(url):
             chrome.wait(timeout=10)
 
 
-def check(origin, number, expected_file):
+def check(origin, number, expected_file, settings):
     expected = (ROOT / "test" / expected_file).read_text().replace("{ORIGIN}", origin)
-    result = run_case(f"{origin}{REPO}/pull/{number}/files")
+    query = urllib.parse.urlencode({"settings": json.dumps(settings)})
+    result = run_case(f"{origin}{REPO}/pull/{number}/files?{query}")
 
+    label = f"pull/{number} {settings}"
     if result["toast"] != SUCCESS_TOAST:
-        return f"pull/{number}: コピーに至りませんでした: {result['toast']}"
+        return f"{label}: コピーに至りませんでした: {result['toast']}"
     if result["copied"] == expected:
         return None
 
     diff = difflib.unified_diff(
         expected.splitlines(True), result["copied"].splitlines(True),
-        expected_file, f"pull/{number} actual",
+        expected_file, f"{label} actual",
     )
-    return f"pull/{number}:\n" + "".join(diff)
+    return f"{label}:\n" + "".join(diff)
 
 
 def main():
@@ -127,7 +137,7 @@ def main():
     origin = f"http://127.0.0.1:{server.server_address[1]}"
     threading.Thread(target=server.serve_forever, daemon=True).start()
     try:
-        failures = [f for f in (check(origin, n, e) for n, _, e in CASES) if f]
+        failures = [f for f in (check(origin, n, e, s) for n, _, e, s in CASES) if f]
     finally:
         server.shutdown()
         server.server_close()

@@ -4,7 +4,9 @@
   fixture-pr.html では通らない以下の経路を検証する。
     - ブランチ名に owner: を付けない（headRepositoryOwnerLogin === ownerLogin）
     - <svg> のようなインラインのカスタム要素で段落が分断されない
-    - 画像（alt あり / なし・相対 src の絶対 URL 化）
+    - 画像（alt あり / なし・相対 src の絶対 URL 化・GitHub 流のリンク包み・
+      リンク先が画像と異なるバッジ・文字入りリンク内の画像・表セル内の画像）
+      画像 URL 削除オプションのオン / オフ両方で使う
     - テーブルのセル内 <br> で表が壊れない
     - コードブロックの中身がコードフェンスを含んでも途中で閉じない
 -->
@@ -35,10 +37,13 @@
         <div class="comment-body markdown-body js-comment-body soft-wrap user-select-contain d-block">
           <ul dir="auto"><li>ステータス<svg aria-hidden="true" height="16" viewBox="0 0 16 16" width="16" class="octicon"><path d="M8 0a8 8 0 1 1 0 16A8 8 0 0 1 8 0Z"></path></svg>は正常です。</li></ul>
           <p dir="auto"><img src="https://example.com/shot.png" alt="スクショ"></p>
-          <p dir="auto"><img src="/user-images/diff.png"></p>
+          <p dir="auto"><a target="_blank" rel="noopener noreferrer" href="/user-images/diff.png"><img src="/user-images/diff.png" style="max-width: 100%;"></a></p>
+          <p dir="auto"><a href="https://ci.example.com/build/1"><img src="https://img.shields.io/badge/build-passing.svg" alt="Build Status"></a></p>
+          <p dir="auto"><a href="https://example.com/doc">手順書 <img src="https://example.com/icon.png" alt=" アイコン "></a></p>
           <markdown-accessiblity-table>
             <table><thead><tr><th>環境</th><th>備考</th></tr></thead>
-            <tbody><tr><td>dev</td><td>一行目<br>二行目</td></tr></tbody></table>
+            <tbody><tr><td>dev</td><td>一行目<br>二行目</td></tr>
+            <tr><td>stg</td><td><img src="https://example.com/env.png" alt="env"></td></tr></tbody></table>
           </markdown-accessiblity-table>
           <div class="snippet-clipboard-content notranslate position-relative overflow-auto" data-snippet-clipboard-copy-content="```js&#10;alert(1)&#10;```"><pre lang="markdown" class="notranslate"><code class="notranslate">```js
 alert(1)

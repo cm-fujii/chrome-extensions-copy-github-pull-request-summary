@@ -226,14 +226,16 @@
   // ------------------------------------------------------------------ 組み立て
 
   function readPullRequest(doc) {
-    const script = doc.querySelector(
-      'react-app[app-name="pull-requests"] script[data-target="react-app.embeddedData"]'
-    )
+    // react-app の app-name は "pull-requests" から "repo" へ変わった実績があるため、
+    // 属性で絞らず、埋め込み JSON の中身で PR のものを見分ける
     let route
-    try {
-      route = JSON.parse(script?.textContent ?? '')?.payload?.pullRequestsLayoutRoute
-    } catch {
-      // 埋め込み JSON の形式変更も DOM 変更と同じ扱いにする
+    for (const script of doc.querySelectorAll('script[data-target="react-app.embeddedData"]')) {
+      try {
+        route = JSON.parse(script.textContent)?.payload?.pullRequestsLayoutRoute
+      } catch {
+        // 埋め込み JSON の形式変更も DOM 変更と同じ扱いにする
+      }
+      if (route) break
     }
     const pullRequest = route?.pullRequest
     // 存在確認だけでは、フィールド名が変わったときに undefined を黙ってコピーしてしまう

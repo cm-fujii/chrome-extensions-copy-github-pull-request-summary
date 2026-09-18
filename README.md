@@ -46,8 +46,9 @@ GitHub の Pull Request のページ（Conversation / Commits / Files changed / 
 - 右クリック時にのみ `content.js` を注入する構成で、常駐する content script はありません
 - どのタブから実行しても同じ結果になるよう、常に Conversation ページを `fetch` して情報を取り出します
 - タイトル・ブランチは、GitHub がページに埋め込んでいる JSON
-  （`react-app[app-name="pull-requests"]` 内の `embeddedData`）から取得します。
-  CSS クラス名に依存しないため、GitHub の画面変更に比較的強い経路です
+  （`script[data-target="react-app.embeddedData"]` のうち `pullRequestsLayoutRoute` を持つもの）から取得します。
+  CSS クラス名や `react-app` の `app-name`（`pull-requests` → `repo` へ変更された実績あり）に依存しないため、
+  GitHub の画面変更に比較的強い経路です
 - Description はレンダリング済み HTML を Markdown に変換します
   （生の Markdown は編集権限がある場合しか DOM に出ないため）。
   こちらは `.js-command-palette-pull-body .comment-body.markdown-body` という

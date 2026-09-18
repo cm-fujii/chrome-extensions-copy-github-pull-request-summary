@@ -2,11 +2,23 @@
 <!--
   GitHub の PR ページ（Conversation タブ）を模したフィクスチャ。
   実際の github.com が返す HTML から、content.js が依存する構造だけを抜き出している。
+  react-app の app-name は現行の "repo"（fixture-same-repo.html は旧来の "pull-requests"）。
+  PR 以外の embeddedData（壊れた JSON / pullRequestsLayoutRoute を持たない JSON）が
+  先に並んでいても読み飛ばし、PR のものを選ぶことを検証する。
 -->
 <html lang="en">
   <head><title>fixture</title></head>
   <body>
-    <react-app app-name="pull-requests" initial-path="/microsoft/vscode/pull/200000">
+    <react-partial partial-name="keyboard-shortcuts-dialog">
+      <script type="application/json" data-target="react-app.embeddedData">{"props":</script>
+    </react-partial>
+    <react-partial partial-name="marketing-header">
+      <script type="application/json" data-target="react-app.embeddedData">
+        { "payload": { "repoLayoutRoute": { "repository": { "ownerLogin": "someone-else" } } } }
+      </script>
+    </react-partial>
+
+    <react-app app-name="repo" initial-path="/microsoft/vscode/pull/200000">
       <script type="application/json" data-target="react-app.embeddedData">
         {
           "payload": {
